@@ -1,8 +1,8 @@
 .runTransformations
-.#-----------------------------------------------------
+.#----------------------------------------------------------------------------------
 .input|xwiki/2.0
-.# Test the PlantUML macro with a PlantUML server
-.#-----------------------------------------------------
+.# Test the PlantUML macro with a PlantUML server that is in the trusted domain list
+.#----------------------------------------------------------------------------------
 {{plantuml server="http://localhost:8777"}}
 @startuml
 Bob -> Alice : hello

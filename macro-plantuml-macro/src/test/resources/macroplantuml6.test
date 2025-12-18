@@ -1,0 +1,27 @@
+.runTransformations
+.#--------------------------------------------------------------------------------------
+.input|xwiki/2.0
+.# Test the PlantUML macro with a PlantUML server that is not in the trusted domain list
+.#--------------------------------------------------------------------------------------
+{{plantuml server="http://nottrusteddomain"}}
+@startuml
+Bob -> Alice : hello
+@enduml
+{{/plantuml}}
+.#-----------------------------------------------------
+.expect|event/1.0
+.#-----------------------------------------------------
+beginDocument
+beginMacroMarkerStandalone [plantuml] [server=http://nottrusteddomain] [@startuml
+Bob -> Alice : hello
+@enduml]
+beginGroup [[class]=[xwikirenderingerror]]
+onWord [Failed to execute the PlantUML macro. Cause: [The PlantUML Server URL [http://nottrusteddomain] is not in the list of trusted domains.]. Click on this message for details.]
+endGroup [[class]=[xwikirenderingerror]]
+beginGroup [[class]=[xwikirenderingerrordescription hidden]]
+onVerbatim [org.xwiki.rendering.macro.MacroExecutionException: The PlantUML Server URL [http://nottrusteddomain] is not in the list of trusted domains.${{{regex:.*}}}] [false]
+endGroup [[class]=[xwikirenderingerrordescription hidden]]
+endMacroMarkerStandalone [plantuml] [server=http://nottrusteddomain] [@startuml
+Bob -> Alice : hello
+@enduml]
+endDocument

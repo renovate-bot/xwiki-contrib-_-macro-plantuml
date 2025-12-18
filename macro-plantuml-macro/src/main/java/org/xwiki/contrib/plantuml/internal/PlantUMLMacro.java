@@ -19,6 +19,8 @@
  */
 package org.xwiki.contrib.plantuml.internal;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,6 +48,7 @@ import org.xwiki.rendering.macro.AbstractMacro;
 import org.xwiki.rendering.macro.MacroExecutionException;
 import org.xwiki.rendering.macro.descriptor.DefaultContentDescriptor;
 import org.xwiki.rendering.transformation.MacroTransformationContext;
+import org.xwiki.url.URLSecurityManager;
 
 /**
  * Asynchronous macro that generates an image from a textual description, using PlantUML.
@@ -89,6 +92,9 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
 
     @Inject
     private Logger logger;
+
+    @Inject
+    private URLSecurityManager urlSecurityManager;
 
     /**
      * Create and initialize the descriptor of the macro.
@@ -153,12 +159,27 @@ public class PlantUMLMacro extends AbstractMacro<PlantUMLMacroParameters>
         return Arrays.asList(resultBlock);
     }
 
-    private String computeServer(PlantUMLMacroParameters parameters)
+    private String computeServer(PlantUMLMacroParameters parameters) throws MacroExecutionException
     {
         String serverURL = parameters.getServer();
         if (serverURL == null) {
             serverURL = this.configuration.getPlantUMLServerURL();
         }
+
+        // Verify that the server is in the trusted domain list to avoid SSRF attacks.
+        if (serverURL != null) {
+            URL url;
+            try {
+                url = new URL(serverURL);
+            } catch (MalformedURLException e) {
+                throw new MacroExecutionException(String.format("Invalid PlantUML Server URL [%s]", serverURL), e);
+            }
+            if (!this.urlSecurityManager.isDomainTrusted(url)) {
+                throw new MacroExecutionException(String.format("The PlantUML Server URL [%s] is not in the list of "
+                    + "trusted domains.", serverURL));
+            }
+        }
+
         return serverURL;
     }
 

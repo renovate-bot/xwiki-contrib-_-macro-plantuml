@@ -21,6 +21,7 @@ package org.xwiki.contrib.plantuml;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.URL;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -36,6 +37,7 @@ import org.xwiki.security.authorization.AuthorizationManager;
 import org.xwiki.test.XWikiTempDirUtil;
 import org.xwiki.test.annotation.AllComponents;
 import org.xwiki.test.mockito.MockitoComponentManager;
+import org.xwiki.url.URLSecurityManager;
 import org.xwiki.wiki.descriptor.WikiDescriptorManager;
 
 import net.sourceforge.plantuml.picoweb.PicoWebServer;
@@ -109,5 +111,8 @@ public class IntegrationTests
         componentManager.unregisterComponent(EventListener.class, "refactoring.relativeLinksUpdater");
         componentManager.unregisterComponent(EventListener.class, "refactoring.backLinksUpdater");
         componentManager.registerMockComponent(PlantUMLConfiguration.class);
+
+        URLSecurityManager urlSecurityManager = componentManager.registerMockComponent(URLSecurityManager.class);
+        when(urlSecurityManager.isDomainTrusted(new URL("http://localhost:8777"))).thenReturn(true);
     }
 }
